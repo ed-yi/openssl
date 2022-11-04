@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+/'这个是aes 关于ecb 电子加密本 的 加密方法'/
+start
+:AesECB加密;
+:输入明文，密钥，填充方式;
+:切割成块;
+if (是否需要填充) then (yes)
+  :执行填充;
+else (no)
+endif
+ :生成加密密文;
+ :进行加密;
+ :密文;
+stop
+
+@enduml
