@@ -1,8 +1,6 @@
 package openssl
 
-import (
-	"bytes"
-)
+import "bytes"
 
 /*** =========================================
 *在玩Cipher的时候，其中创建Cipher对象的时候需要指定加密模式，指定为对称加密中的分组算法时，因为加密是以 块 为单位进行一次加密，所以要求数据是块的整数倍，如果不符合要求，则需要进行填充
@@ -19,30 +17,48 @@ X923 填充后： FF FF FF FF FF FF FF FF | FF DD 00 00 00 00 00 06
 ============================================*/
 
 const (
-	PKCS5_PADDING = "PKCS5"
-	PKCS7_PADDING = "PKCS7"
-	ZEROS_PADDING = "ZEROS"
+	PKCS5_PADDING    = "PKCS5" // 目前已经弃用
+	PKCS7_PADDING    = "PKCS7"
+	ZEROS_PADDING    = "ZEROS"
+	ANSIX923_PADDING = "ANSIX923"
+	NONE_PADDING     = "NONE"
+	ISO10126_PADDING = "ISO10126"
 )
 
 func PKCS5Padding(src []byte, blockSize int) []byte {
-	padding := blockSize - len(src)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(src, padtext...)
+	//这个方法已经弃用
+	return PKCS7Padding(src, blockSize)
 }
 
 func PKCS7Padding(src []byte, blockSize int) []byte {
+	//计算出所需要填充的数目
 	padding := blockSize - len(src)%blockSize
+	//一个块的大小默认是16位（采用16*8=128，aes-128长的密钥），如下，如果是9bute，按照aes的算法我们要填充到16个byte，如下
+	//填充示例 原始：FF FF FF FF FF FF FF FF FF 填充：FF FF FF FF FF FF FF FF FF 07 07 07 07 07 07 07
+	//这里的07 指的是 16（blocksize）-9（原始的padding）
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
+
 }
 func ZerosPadding(src []byte, blockSize int) []byte {
-	paddingcount := blockSize - len(src)%blockSize
-	if paddingcount == 0 {
-		return src
-	}
-	return append(src, bytes.Repeat([]byte{byte(0)}, paddingcount)...)
+	padding := blockSize - len(src)%blockSize
+	padtext := bytes.Repeat([]byte{0}, padding)
+	return append(src, padtext...)
 }
 
+// 针对块大小为 8 的算法设计的填充模式，该标准已经被撤销。
+/*func ANSIX923PADDING(src []byte, blockSize int) []byte {
+
+}*/
+
+// ，就是不填充，必须保证加密的key和data是8(DES)/16(AES)的整数倍。
+/*func NONEPADDING(src []byte, blockSize int) []byte {
+
+}*/
+// 与位填充方案相同，适用于N字节的纯文本，并不常用
+/*func ISO10126PADDING(src []byte, blockSize int) []byte {
+
+}*/
 func Padding(padding string, src []byte, blockSize int) []byte {
 	switch padding {
 	case PKCS5_PADDING:
@@ -51,6 +67,13 @@ func Padding(padding string, src []byte, blockSize int) []byte {
 		src = PKCS7Padding(src, blockSize)
 	case ZEROS_PADDING:
 		src = ZerosPadding(src, blockSize)
+		/*	case ANSIX923_PADDING:
+				src = ANSIX923PADDING(src, blockSize)
+			case NONE_PADDING:
+				src = NONEPADDING(src, blockSize)
+			case ISO10126_PADDING:
+				src = ISO10126PADDING(src, blockSize)*/
 	}
+
 	return src
 }

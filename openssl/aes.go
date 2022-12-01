@@ -34,11 +34,14 @@ key ： 加密密钥
 padding ： 填充方式 看 27行
 */
 func AesECBEncodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
+	//因为AES是一种分组加密的算法，分组加密的规格分值为128，192，256，但是都是分组为4组的分。所以得到的密钥长度是32，48，64
+	//官方的aes包提供了一个分模块的方法
+	//这个key我们可以传入  16, 24, or 32  去选择 规格为128 ， 192，256的加密方式
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	return ECBEncodeCrypt(block, src, padding)
+	return EcbEncodeCrypt(block, src, padding)
 }
 
 //func AesECBDecodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
