@@ -44,12 +44,26 @@ func AesECBEncodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
 	return EcbEncodeCrypt(block, src, padding)
 }
 
-//func AesECBDecodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
-//
-//}
-//func AesCBCEncodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
-//
-//}
+func AesECBDecodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	return EcbDecodeCrypt(block, src, padding)
+}
+
+/*
+** =========================================
+*CBC 密码分组链接模式（CipherBlockChaining(CBC)）
+CBC模式对于每个待加密的密码块在加密前会先与前一个密码块的密文异或然后再用加密器加密。第一个明文块与一个叫初始化向量的数据块异或。
+
+CBC模式相比ECB有更高的保密性，但由于对每个数据块的加密依赖与前一个数据块的加密所以加密无法并行。与ECB一样在加密前需要对数据进行填充，不是很适合对流数据进行加密。
+============================================
+*/
+func AesCBCEncodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
+
+}
+
 //func AesCBCDecodeCrypt(src []byte, key []byte, padding string) ([]byte, error) {
 //
 //}

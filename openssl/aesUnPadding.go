@@ -26,15 +26,22 @@ func PKCS7UnPadding(originData []byte) ([]byte, error) {
 	}
 	length := len(originData)
 	unpadding := int(originData[length-1])
+	if length < unpadding {
+		return originData, errors.New("error...unpadding")
+	}
 	return originData[:length-unpadding], nil
 }
 func ZerosUnPadding(originData []byte) ([]byte, error) {
 	if len(originData) <= 0 {
 		return originData, errors.New("length is err")
 	}
-	length := len(originData)
-	unpadding := int(originData[length-1])
-	return originData[:length-unpadding], nil
+	for i := len(originData); i > 0; i++ {
+		if originData[i] != 0 {
+			return originData[:i+1], nil
+		}
+	}
+	return originData, errors.New("error....unpadding")
+
 }
 
 /*

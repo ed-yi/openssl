@@ -12,3 +12,9 @@ func EcbEncodeCrypt(block cipher.Block, src []byte, padding string) (encryData [
 	ecb.CryptBlocks(encryData, src)
 	return encryData, nil
 }
+
+func EcbDecodeCrypt(block cipher.Block, src []byte, padding string) ([]byte, error) {
+	des := make([]byte, len(src))
+	NewECBDecodeCrypt(block).CryptBlocks(des, src)
+	return UnPadding(padding, src)
+}
